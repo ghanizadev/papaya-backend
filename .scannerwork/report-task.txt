@@ -1,0 +1,7 @@
+organization=jean-felipe-de-melo
+projectKey=Jean-Felipe-de-Melo_lasolana_api
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.4497
+dashboardUrl=https://sonarcloud.io/dashboard?id=Jean-Felipe-de-Melo_lasolana_api
+ceTaskId=AXAsT2JEBeScItznt0eq
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AXAsT2JEBeScItznt0eq

@@ -1,0 +1,32 @@
+language: node_js
+node_js:
+  'stable'
+
+addons:
+  sonarcloud:
+    organization: "papaya" # the key of the org you chose at step #3
+
+script:
+  - sonar-scanner
+
+cache:
+  directories:
+    - '$HOME/.sonar/cache'
+    - "$HOME/.npm"
+
+jobs:
+  include:
+    - stage: "Compile"
+      script: npm ci
+
+    - stage: "Test"
+      script: npm run test
+      
+    - stage: "Quality gate"
+      script: sonar-scanner
+
+
+notifications:
+  email: false
+  on_success: change
+  on_failure: always

@@ -1,0 +1,7 @@
+#!/usr/bin/nodejs
+const debug = require('debug')('lasolana_backend');
+const app = require('../app');
+
+var server = app.listen(process.env.PORT || 3000, () => {
+	debug(`Express server listening on port ${server.address().port}`);
+});

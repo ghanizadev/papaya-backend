@@ -1,0 +1,8 @@
+{
+  "rules":{
+    "pricing":{
+      "serviceTax": 10
+    }
+  }
+
+}
