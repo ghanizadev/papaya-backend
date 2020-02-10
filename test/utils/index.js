@@ -13,7 +13,7 @@ const populateDatabase = async () => {
 					const user = new User({
 						name: 'Administrator',
 						email: 'admin@admin.com',
-						password: bcrypt.hashSync('123456', process.env.SALT),
+						password: bcrypt.hashSync('123456', '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq'),
 					});
 				
 					const client = new Client({

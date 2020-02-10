@@ -73,7 +73,7 @@ const arrayEquals = (authorities = [], required = []) => {
 };
 
 
-const encryptPassword = (password) => bcrypt.hashSync(password, process.env.SALT);
+const encryptPassword = (password) => bcrypt.hashSync(password, '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq');
 
 const comparePassword = (password, encryptedPasswordToCompareTo) => encryptedPasswordToCompareTo === encryptPassword(password);
 
