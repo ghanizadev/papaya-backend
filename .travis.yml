@@ -6,13 +6,13 @@ addons:
   sonarcloud:
     organization: "papaya" # the key of the org you chose at step #3
 
-script:
-  - sonar-scanner
-
 cache:
   directories:
     - '$HOME/.sonar/cache'
     - "$HOME/.npm"
+
+env:
+  - SALT="$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq" MONGO_HOST="mongodb://localhost:27017/lasolana"
 
 jobs:
   include:
