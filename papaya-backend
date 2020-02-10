@@ -1,5 +1,10 @@
 language: node_js
 node_js: stable
+addons:
+  sonarcloud:
+    organization: papaya
+script:
+- sonar-scanner
 cache:
   directories:
   - "$HOME/.sonar/cache"
@@ -10,11 +15,12 @@ jobs:
     script: npm ci
   - stage: Test
     script: npm run test
-  - stage: SonarQube
-    addons:
-      sonarcloud:
-        organization: papaya
+  - stage: Quality gate
     script: sonar-scanner
+notifications:
+  email: false
+  on_success: change
+  on_failure: always
 deploy:
   provider: heroku
   api_key:
@@ -22,7 +28,3 @@ deploy:
   app: papaya-server
   on:
     repo: ghanizadev/papaya-backend
-notifications:
-  email: false
-  on_success: change
-  on_failure: always
