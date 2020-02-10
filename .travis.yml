@@ -12,7 +12,7 @@ cache:
     - "$HOME/.npm"
 
 env:
-  - SALT="$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq" MONGO_HOST="mongodb://localhost:27017/lasolana"
+  - SALT=$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq MONGO_HOST=mongodb://localhost:27017/lasolana
 
 jobs:
   include:
