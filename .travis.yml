@@ -2,10 +2,6 @@ language: node_js
 node_js:
   'stable'
 
-addons:
-  sonarcloud:
-    organization: "papaya" # the key of the org you chose at step #3
-
 cache:
   directories:
     - '$HOME/.sonar/cache'
@@ -20,9 +16,12 @@ jobs:
       script: npm ci
 
     - stage: "Test"
+      name: 'Mocha/Chai'
       script: npm run test
-      
-    - stage: "Quality gate"
+      addons:
+        sonarcloud:
+          organization: "papaya" 
+      name: 'SonarQube'
       script: sonar-scanner
 
 
