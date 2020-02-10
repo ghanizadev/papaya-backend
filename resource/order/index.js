@@ -432,7 +432,7 @@ router.post('/:orderId/:code/pay', async (req, res, next) => {
 				return next({status: 400, error: 'invalid_payment', error_description: 'changes are not allowed for payments different than cash'});
 			}
 
-			const hash = bcrypt.hashSync(foundOrder.user + timestamp + foundOrder.orderId, process.env.SALT);
+			const hash = bcrypt.hashSync(foundOrder.user + timestamp + foundOrder.orderId, '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq');
 
 			payment.set({authorizationDate: timestamp, authorizationId: hash});
 
@@ -484,7 +484,7 @@ router.post('/:orderId/:member/:code/pay', (req, res, next) => {
 
 		const issuer = `${user.code} - ${user.name}`;
 		const authorizationDate = new Date();
-		const authorizationId = bcrypt.hash(foundOrder.user + authorizationDate + foundOrder.orderId, process.env.SALT);
+		const authorizationId = bcrypt.hash(foundOrder.user + authorizationDate + foundOrder.orderId, '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq');
 		const payment = new Payment({...req.body, authorizationDate, authorizationId, operator: issuer});
 
 			
@@ -546,7 +546,7 @@ router.post('/:orderId/:member/pay', (req, res, next) => {
 			return res.status(400).send({error: 'invalid_payment', error_description: 'changes are not allowed for payments different than cash'});
 		}
 
-		const hash = bcrypt.hashSync(foundOrder.user + timestamp + foundOrder.orderId, process.env.SALT);
+		const hash = bcrypt.hashSync(foundOrder.user + timestamp + foundOrder.orderId, '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq');
 
 		payment.set({authorizationDate: timestamp, authorizationId: hash});
 
