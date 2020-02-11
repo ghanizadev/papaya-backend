@@ -2,6 +2,20 @@
 const crypto = require('crypto');
 const async = require('async');
 
+const checkAuthorities = (authorities = [], required = []) => {
+	let count = 0;
+  
+	if (required.length === 0)
+		return true;
+    
+	required.forEach(authority => {
+		if (authorities.includes(authority))
+			count ++;
+	});
+
+	return count === required.length;
+};
+
 const saveDocument = (document) => new Promise((resolve, reject) =>{
 	
 	document.validate()
@@ -145,5 +159,6 @@ module.exports = {
 	friendlyId,
 	calculateValues, 
 	calculateCustomerValues,
-	calculateProductValues
+	calculateProductValues,
+	checkAuthorities
 };

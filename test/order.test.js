@@ -10,7 +10,7 @@ const STREET = faker.address.streetAddress();
 const DISTRICT = faker.address.secondaryAddress();
 const NUMBER = faker.random.number();
 
-describe('Create and alter ORDER (with invalid/valid data)', function() {
+describe('/api/v1/order', function() {
 	before(async function() {
 		const token = await request(app)
 			.post('/oauth/token')

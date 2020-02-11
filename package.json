@@ -7,7 +7,8 @@
     "dev": "nodemon --inspect ./bin/www",
     "test": "cross-env NODE_ENV=test nyc --report --reporter=lcov mocha --exit",
     "report": "cross-env NODE_ENV=test nyc --report --reporter=lcov mocha --exit && xdg-open ./coverage/lcov-report/index.html",
-    "generate-docs": "jsdoc -c ./config/jsdoc.json"
+    "generate-docs": "jsdoc -c ./config/jsdoc.json",
+    "lint": "eslint ."
   },
   "dependencies": {
     "async": "^3.1.0",
@@ -16,41 +17,22 @@
     "chai": "^4.2.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.4",
-    "core-js": "^3.6.0",
-    "debug": "^4.1.1",
-    "docdash": "^1.2.0",
     "dotenv": "^8.2.0",
-    "eslint-plugin-react": "^7.18.0",
     "express": "^4.17.1",
     "express-json-views": "^0.2.0",
-    "express-mung": "^0.5.1",
-    "jsonschema": "^1.2.5",
-    "mocha": "^7.0.1",
-    "mongodb": "^3.3.4",
     "mongoose": "^5.7.12",
     "morgan": "^1.9.1",
-    "nan": "^2.14.0",
     "nanoid": "^2.1.8",
     "node-fetch": "^2.6.0",
-    "node-gyp": "^5.0.7",
-    "node-rsa": "^1.0.7",
-    "oauth20-provider": "^0.6.0",
-    "oidc-provider": "^6.17.3",
     "socket.io": "^2.3.0",
-    "static-favicon": "~1.0.0",
-    "tap-spec": "^5.0.0",
-    "uuid": "^3.3.3",
-    "winston": "^3.2.1"
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "cross-env": "^7.0.0",
     "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-jest": "^23.6.0",
     "eslint-plugin-mocha": "^6.2.2",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
@@ -60,7 +42,6 @@
     "mongodb-memory-server": "^6.2.4",
     "nodemon": "^2.0.1",
     "nyc": "^15.0.0",
-    "sonarqube-scanner": "^2.5.0",
     "supertest": "^4.0.2"
   }
 }

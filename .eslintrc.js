@@ -5,7 +5,13 @@ module.exports = {
     node: true,
     mocha: true
   },
-  plugins: ['mocha'],
+  plugins: [
+    'mocha',
+    'standard',
+    'promise',
+    'import',
+    'node'
+  ],
   extends: [
     "plugin:mocha/recommended"
   ],

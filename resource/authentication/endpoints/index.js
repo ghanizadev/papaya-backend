@@ -5,7 +5,9 @@ const {saveDocument} = require('../../utils');
 
 const { checkCredentials } = require('../utils');
 
-
+/**
+ * TOKEN endpoint - POST /oauth/token
+ */
 router.post('/token', async (req, res, next) => {
 
 	const  { body } = req;

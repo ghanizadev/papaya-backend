@@ -2,17 +2,13 @@
 const request = require('supertest');
 const app = require('../app');
 const faker = require('faker');
-const setup = require('./utils/setup');
-const teardown = require('./utils/teardown');
 const {assert} = require('chai');
-
 
 const EMAIL = faker.internet.email();
 const PASSWORD = faker.internet.password();
 const NAME = faker.name.firstName();
 
-
-describe('Create USER (with invalid/valid data)', function() {
+describe('/api/v1/user', function() {
 
 	it('should not create a new user without email', async function () {
 		const res = await request(app)
@@ -54,8 +50,20 @@ describe('Create USER (with invalid/valid data)', function() {
 			});
 		assert.equal(res.statusCode, 400, 'Expect request to be denied (400)');
 		assert.equal(res.body.error, 'failed_to_validate',  'Expect error code to be \"failed_to_validate\"');
+	});
 
-		
+	it('should not create a new user with authorities', async function () {
+		const res = await request(app)
+			.post('/api/v1/user')
+			.set('Content-Type', 'application/json')
+			.send({
+				email: faker.internet.email(),
+				password: faker.internet.password(),
+				name: faker.name.firstName(),
+				authorities: ['TESTE', 'READ']
+			});
+		assert.equal(res.statusCode, 201, 'Expect request to be created(201)');
+		assert.deepEqual(res.body.authorities, ['READ'],  'Expect authorities to be "READ"');
 	});
 
 	it('should not get data without a token', async function () {
@@ -68,21 +76,19 @@ describe('Create USER (with invalid/valid data)', function() {
 		
 	});
 
-	it('should create a new user', function (done) {
-		request(app)
+	it('should create a new user', async function () {
+		const res = await request(app)
 			.post('/api/v1/user')
 			.set('Content-Type', 'application/json')
 			.send({
 				email: EMAIL,
 				password: PASSWORD,
 				name: NAME
-			}).then(res => {
-				assert.equal(res.statusCode, 201, 'Expect user to be created (201)');
-				assert.equal(res.body.email, EMAIL,  'Expect email to match itself"');
-				assert.exists(res.body._id,  'Expect ID to be returned"');
+			});
 
-				done();
-			}).catch(done);
+		assert.equal(res.statusCode, 201, 'Expect user to be created (201)');
+		assert.equal(res.body.email, EMAIL,  'Expect email to match itself"');
+		assert.exists(res.body._id,  'Expect ID to be returned"');
 
 	});
 

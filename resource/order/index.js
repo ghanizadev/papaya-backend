@@ -4,8 +4,14 @@ var bcrypt = require('bcrypt');
 
 const router = express.Router();
 const {Order, Pizza, Flavor, Table, Payment, Delivery} = require('../../model');
-const {saveDocument, friendlyId, calculateValues, calculateCustomerValues, calculateProductValues} = require('../utils');
+const {saveDocument, friendlyId, calculateValues, calculateCustomerValues, calculateProductValues, checkAuthorities} = require('../utils');
 const fetch = require('node-fetch');
+
+router.all('*', (req, res, next) => {
+	if(!checkAuthorities(req.user.authorities, ['READ', 'WRITE']))
+		return res.status(403).send({status: 403, error: 'forbidden', error_description: 'you are not permitted to check this content'});
+	next();
+});
 
 router.get('/', (req, res, next) => {
 	const query = Order.find(req.query);

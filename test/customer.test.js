@@ -13,7 +13,7 @@ const CPF = '08485806999';
 const PHONE = faker.phone.phoneNumber();
 
 
-describe('Create CUSTOMER with invalid data', function() {
+describe('/api/v1/customer', function() {
 
 	before(async function() {
 		const token = await request(app)
