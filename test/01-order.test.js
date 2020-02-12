@@ -227,7 +227,6 @@ describe('/api/v1/order', function() {
 		assert.equal(res.body.error, 'invalid_address', 'Expect error code to be \"invalid_address\"');
 	});
 
-	// eslint-disable-next-line mocha/no-skipped-tests
 	it('should post a new delivery order', async function () {
 		const res = await request(app)
 			.post('/api/v1/order/delivery')
@@ -235,7 +234,6 @@ describe('/api/v1/order', function() {
 			.send({
 				customer: faker.name.firstName(),
 				address: {
-
 					street: STREET,
 					district: DISTRICT,
 					number: NUMBER

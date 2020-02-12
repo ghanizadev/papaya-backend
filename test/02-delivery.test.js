@@ -12,7 +12,7 @@ describe('/api/v1/delivery', function() {
 			.send();
 
 		assert.equal(res.statusCode, 200, 'Expect request to be accepted (200)');
-		assert.equal(res.body.length, 1,  'Expect list to be empty');
+		assert.equal(res.body.length, 1,  'Expect list to have one delivery');
 	});
 
 	it('should get one delivery', async function () {
