@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const DeliverySchema = new mongoose.Schema({
 	orderId: { type: String, required: true},
-	costumer: { type: String, default: 'Visitante' },
+	customer: { type: String, default: 'Visitante' },
 	paymentMethod: {
 		type: String,
 		enum: ['CREDITO', 'DEBITO', 'DINHEIRO', 'ALIMENTACAO/REFEICAO'],

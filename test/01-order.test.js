@@ -228,7 +228,7 @@ describe('/api/v1/order', function() {
 	});
 
 	// eslint-disable-next-line mocha/no-skipped-tests
-	it.skip('should post a new delivery order', async function () {
+	it('should post a new delivery order', async function () {
 		const res = await request(app)
 			.post('/api/v1/order/delivery')
 			.set('Authorization', 'Bearer '+ JWT)
@@ -242,8 +242,10 @@ describe('/api/v1/order', function() {
 				},
 				paymentMethod: 'DINHEIRO',
 			});
+
 		assert.equal(res.statusCode, 201, 'Expect request to be created(201)');
 		assert.exists(res.body.orderId, 'Expect response to have an order ID');
+		assert.isTrue(res.body.order.toDeliver, 'Expect toDeliver set to true');
 	});
 
 	it('should be able to find by order ID', async function () {
@@ -279,25 +281,25 @@ describe('/api/v1/order', function() {
 			.send([
 				{quantity: 1, code: '10*1141', additionals: ['1141:SEM CEBOLA;SEM TOMATE'], owner: [NAME] }
 			]);
-		
+
 		assert.equal(res.statusCode, 201, 'Expect request to be created(201)');
 		assert.equal(res.body.orderId, b.orderId, 'Expect order ID to be the same');
 	});
 
 	// eslint-disable-next-line mocha/no-skipped-tests
-	it.skip('should add a new product to a delivery order', async function () {
+	it('should add a new product to a delivery order', async function () {
 		const order = await request(app)
-			.get('/api/v1/order')
+			.get('/api/v1/delivery')
 			.set('Authorization', 'Bearer '+ JWT)
 			.send();
-		
-		const b = order.body.find(order => order.toDeliver);
+
+		const b = order.body.shift();
 
 		const res = await request(app)
 			.put('/api/v1/order/'+ b.orderId +'/add')
 			.set('Authorization', 'Bearer '+ JWT)
 			.send([
-				{quantity: 1, code: '10*1141', additionals: ['1212:SEM CEBOLA'], owner: [NAME] }
+				{quantity: 1, code: '10*1141', additionals: ['1141:SEM CEBOLA;SEM TOMATE'], owner: [NAME] }
 			]);
 
 		assert.equal(res.statusCode, 201, 'Expect request to be created(201)');

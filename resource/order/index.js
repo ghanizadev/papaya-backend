@@ -98,12 +98,12 @@ router.post('/delivery', async (req, res, next) => {
 			order.toDeliver = true;
 		
 			return formatProducts(body.products)
-				.then(async result => {
+				.then(result => {
 					order.items = result;
 
 					const saveOrder = new Order(order);
 
-					return saveDocument(saveOrder)
+					saveDocument(saveOrder)
 						.then(orderResult => {
 
 							const {street, district, number} = delivery.address;
@@ -324,17 +324,17 @@ router.put('/:orderId/add', (req, res, next) => {
 					.then(savedFile => {
 						const result = calculateValues(savedFile);
 
-						const queryB = Table.findOne({ orderId });
+						const queryB = foundDocument.toDeliver ? Delivery.findOne({ orderId }) : Table.findOne({ orderId });
 						
 						queryB.exec()
-							.then(foundTable => {
-								foundTable.set({
+							.then(foundItem => {
+								foundItem.set({
 									order: result
 								});
 
-								saveDocument(foundTable)
-									.then(resultTable => {
-										res.status(201).send(resultTable);
+								saveDocument(foundItem)
+									.then(resultItem => {
+										res.status(201).send(resultItem);
 										
 									})
 									.catch(next);
