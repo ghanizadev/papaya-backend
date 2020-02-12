@@ -12,14 +12,29 @@ router.get('/', async (req, res, next) => {
 		.catch(next);
 });
 
+router.get('/:providerId', async (req, res, next) => {
+	const {providerId} = req.params;
+	const query = Provider.findOne({providerId});
+		
+	return query.exec()
+		.then(foundProvider => {
+			if (!foundProvider)
+				return res.status(404).send({error: 'not_found', error_description:'provider not found, moved, or invalid, please check your data'});
+		
+			res.status(200).send(foundProvider);
+		})
+		.catch(next);
+});
+
 router.post('/', async (req, res, next) => {
+	const body = req.body;
 	const counter = Provider.estimatedDocumentCount();
 		
 	await counter.exec()
 		.then(count => body.providerId = ((count + 1) / 10000).toString().replace('.', ''))
 		.catch(next);
 		
-	const provider = new Provider(req.body);
+	const provider = new Provider(body);
 
 	return saveDocument(provider)
 		.then(result => res.status(201).send(result))

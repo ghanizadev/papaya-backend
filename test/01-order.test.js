@@ -424,5 +424,4 @@ describe('/api/v1/order', function() {
 		assert.equal(res.body.items[0].payments.length, 1, 'Expect to have 1 payment');
 	});
 
-  
 });

@@ -1,6 +1,0 @@
-projectKey=papaya-backend
-serverUrl=http://localhost:9000
-serverVersion=7.9.2.30863
-dashboardUrl=http://localhost:9000/dashboard?id=papaya-backend
-ceTaskId=AXA3lGG4dDxbMi5oNEw2
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AXA3lGG4dDxbMi5oNEw2

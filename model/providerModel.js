@@ -56,15 +56,12 @@ const ProviderSchema = new mongoose.Schema({
 	providerId: { type: String, unique: true },
 	name: { type: String, required: true },
 	address: {
-		type:{
-			street: String,
-			number: String,
-			district: String, 
-			city: String,
-			postalCode: String,
-			state: { type: String}
-		},
-		required: true
+		street: String,
+		number: String,
+		district: String, 
+		city: String,
+		postalCode: String,
+		state: String
 	},
 	cnpj: {
 		type: String,
