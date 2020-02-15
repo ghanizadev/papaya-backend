@@ -3,7 +3,7 @@ var async = require('async');
 var bcrypt = require('bcrypt');
 
 const router = express.Router();
-const {Order, Pizza, Flavor, Table, Payment, Delivery} = require('../../model');
+const {Order, Pizza, Flavor, Table, Payment, Delivery, Stock} = require('../../model');
 const {saveDocument, friendlyId, calculateValues, calculateCustomerValues, calculateProductValues, checkAuthorities} = require('../utils');
 const fetch = require('node-fetch');
 
@@ -249,7 +249,7 @@ const formatProducts = (products = []) => new Promise((resolve, reject) => {
 	}, () => resolve(result));
 });
 
-router.put('/:orderId/:code/remove', (req, res, next) => {
+router.put('/:orderId/:code/remove', async (req, res, next) => {
 	const {orderId, code} = req.params;
 
 	const query = Order.findOne({orderId});
@@ -300,48 +300,47 @@ router.put('/:orderId/:code/remove', (req, res, next) => {
 });
 
 
-router.put('/:orderId/add', (req, res, next) => {
+router.put('/:orderId/add', async (req, res, next) => {
 	const {orderId} = req.params;
 
 	const queryA = Order.findOne({orderId});
 
-	queryA.exec().then(foundDocument => {
-		if (foundDocument.closed) {
-			return next({status: 500, error: 'file_not_found', error_description: 'requested order does not exists or it is deleted/closed'});
+	return queryA.exec().then(async foundDocument => {
+		if (!foundDocument || foundDocument.closed) {
+			return next({status: 404, error: 'not_found', error_description: 'requested order does not exists or it is deleted/closed'});
 		}
 
-		formatProducts(req.body)
-			.then(results => {
-				let items = [];
+		const results = await formatProducts(req.body);
 
-				foundDocument.items.forEach(item => {
-					items.push(item);
-				});
+		let items = [];
 
-				items = items.concat(results);
-				foundDocument.set({items});
-				foundDocument.save()
-					.then(savedFile => {
-						const result = calculateValues(savedFile);
+		foundDocument.items.forEach(item => {
+			items.push(item);
+		});
 
-						const queryB = foundDocument.toDeliver ? Delivery.findOne({ orderId }) : Table.findOne({ orderId });
+		items = items.concat(results);
+
+		foundDocument.set({items});
+		foundDocument.save()
+			.then(savedFile => {
+				const result = calculateValues(savedFile);
+
+				const queryB = foundDocument.toDeliver ? Delivery.findOne({ orderId }) : Table.findOne({ orderId });
 						
-						queryB.exec()
-							.then(foundItem => {
-								foundItem.set({
-									order: result
-								});
+				queryB.exec()
+					.then(foundItem => {
+						foundItem.set({
+							order: result
+						});
 
-								saveDocument(foundItem)
-									.then(resultItem => {
-										res.status(201).send(resultItem);
+						saveDocument(foundItem)
+							.then(resultItem => {
+								res.status(201).send(resultItem);
 										
-									})
-									.catch(next);
-							});
+							})
+							.catch(next);
 					});
-
-			}).catch(next);
+			});
 
 	});
 });
@@ -358,11 +357,11 @@ router.get('/:orderId', async (req, res, next) => {
 	}).catch(next);
 });
 
-router.get('/:orderId/members', (req, res, next) => {
+router.get('/:orderId/members', async (req, res, next) => {
 	const {orderId} = req.params;
 
 	const query = Order.findOne({orderId});
-	query.exec()
+	return query.exec()
 		.then(foundOrder => {		
 			const members = [];
 

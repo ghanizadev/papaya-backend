@@ -48,6 +48,8 @@ var item = require('./resource/item');
 var flavor = require('./resource/flavor');
 var pizza = require('./resource/pizza');
 var waitingList = require('./resource/waitinglist');
+var management = require('./resource/management');
+var stock = require('./resource/stock');
 
 let connected = [];
 
@@ -143,6 +145,7 @@ app.get('/api/v1/user', auth, user);
 app.use('/api/v1/user', user);
 app.use('/oauth', onAuth, authRoutes);
 app.use('/api/v1/product', product);
+app.use('/api/v1/management', auth, management);
 app.use('/api/v1/order', auth, updateCallback, order);
 app.use('/api/v1/customer', auth, customer);
 app.use('/api/v1/provider', provider);
@@ -151,13 +154,13 @@ app.use('/api/v1/table', table);
 app.use('/api/v1/item', item);
 app.use('/api/v1/flavor', flavor);
 app.use('/api/v1/pizza', pizza);
+app.use('/api/v1/stock', stock);
 app.use('/api/v1/waitinglist',  updateCallback, waitingList);
 
 
 // eslint-disable-next-line no-unused-vars
-/** Comentário aqui */
 app.use(function (err, req, res, next) {
-	// console.log(err);
+	!err.status && console.log(err);
 	const response = {
 		error: err.error || 'internal_error',
 		error_description: err.error_description || 'something went bad',

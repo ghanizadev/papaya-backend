@@ -16,6 +16,7 @@ router.get('/', async (req, res, next) =>{
 
 router.post('/', async (req, res, next) => {
 	const product = new Product(req.body);
+
 	return saveDocument(product)
 		.then(result => res.status(201).send(result))
 		.catch(next);
@@ -40,7 +41,7 @@ router.put('/:code', async (req, res, next) => {
 
 			return saveDocument(foundProduct)
 				.then(savedProduct => res.status(201).send(savedProduct))
-				.catchn(next);
+				.catch(next);
 		});
 });
 

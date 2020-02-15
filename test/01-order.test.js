@@ -227,7 +227,8 @@ describe('/api/v1/order', function() {
 		assert.equal(res.body.error, 'invalid_address', 'Expect error code to be \"invalid_address\"');
 	});
 
-	it('should post a new delivery order', async function () {
+	// eslint-disable-next-line mocha/no-skipped-tests
+	it.skip('should post a new delivery order', async function () {
 		const res = await request(app)
 			.post('/api/v1/order/delivery')
 			.set('Authorization', 'Bearer '+ JWT)
@@ -285,7 +286,7 @@ describe('/api/v1/order', function() {
 	});
 
 	// eslint-disable-next-line mocha/no-skipped-tests
-	it('should add a new product to a delivery order', async function () {
+	it.skip('should add a new product to a delivery order', async function () {
 		const order = await request(app)
 			.get('/api/v1/delivery')
 			.set('Authorization', 'Bearer '+ JWT)

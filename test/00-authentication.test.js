@@ -4,7 +4,6 @@ const request = require('supertest');
 const app = require('../app');
 const {assert} = require('chai');
 const setup = require('./utils/setup');
-const teardown = require('./utils/teardown');
 
 const EMAIL = 'admin@admin.com';
 const PASSWORD = '123456';

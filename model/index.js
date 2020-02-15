@@ -11,6 +11,8 @@ const Client = require('./clientModel');
 const Provider = require('./providerModel');
 const Customer = require('./customerModel');
 const Item = require('./itemsModel');
+const Management = require('./managementModel');
+const Stock = require('./stockModel');
 
 module.exports = {
 	Product,
@@ -25,5 +27,7 @@ module.exports = {
 	Client,
 	Provider,
 	Customer,
-	Item
+	Item,
+	Management,
+	Stock
 };
