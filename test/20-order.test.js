@@ -228,7 +228,7 @@ describe('/api/v1/order', function() {
 	});
 
 	// eslint-disable-next-line mocha/no-skipped-tests
-	it.skip('should post a new delivery order', async function () {
+	it('should post a new delivery order', async function () {
 		const res = await request(app)
 			.post('/api/v1/order/delivery')
 			.set('Authorization', 'Bearer '+ JWT)
@@ -266,7 +266,7 @@ describe('/api/v1/order', function() {
 		assert.deepEqual(b, a, 'Expect order to be equal');
 	});
 
-	it('should add a new product to a table order', async function () {
+	it('should add a pizza to a table order', async function () {
 		const order = await request(app)
 			.get('/api/v1/order')
 			.set('Authorization', 'Bearer '+ JWT)
@@ -285,8 +285,37 @@ describe('/api/v1/order', function() {
 		assert.equal(res.body.orderId, b.orderId, 'Expect order ID to be the same');
 	});
 
+	it('should add a new product to a table order', async function () {
+		const order = await request(app)
+			.get('/api/v1/order')
+			.set('Authorization', 'Bearer '+ JWT)
+			.send();
+		
+		const b = order.body.shift();
+
+		const res = await request(app)
+			.put('/api/v1/order/'+ b.orderId +'/add')
+			.set('Authorization', 'Bearer '+ JWT)
+			.send([
+				{quantity: 1, code: '123456789', additionals: ['123456789:SEM GELO'], owner: [NAME] }
+			]);
+
+		assert.equal(res.statusCode, 201, 'Expect request to be created(201)');
+		assert.equal(res.body.orderId, b.orderId, 'Expect order ID to be the same');
+	});
+
+	it('should remove added product from stock', async function () {
+		const res = await request(app)
+			.get('/api/v1/stock/123456789')
+			.set('Authorization', 'Bearer '+ JWT)
+			.send();
+
+		assert.equal(res.statusCode, 200, 'Expect request to be accepted (200)');
+		assert.equal(res.body.quantity, 18, 'Expect quantity to be 18');
+	});
+
 	// eslint-disable-next-line mocha/no-skipped-tests
-	it.skip('should add a new product to a delivery order', async function () {
+	it('should add a new product to a delivery order', async function () {
 		const order = await request(app)
 			.get('/api/v1/delivery')
 			.set('Authorization', 'Bearer '+ JWT)
@@ -380,7 +409,7 @@ describe('/api/v1/order', function() {
 			.send();
 
 		assert.equal(res.statusCode, 404, 'Expect request to be accepted (200)');
-		assert.equal(res.body.error, 'customer_not_found', 'Expect error code to be "customer_not_found"');
+		assert.equal(res.body.error, 'not_found', 'Expect error code to be "customer_not_found"');
 	});
 
 	it('should not get single table member with invalid order ID', async function () {

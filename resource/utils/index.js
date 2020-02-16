@@ -1,6 +1,5 @@
 
 const crypto = require('crypto');
-const async = require('async');
 
 const checkAuthorities = (authorities = [], required = []) => {
 	let count = 0;
@@ -40,24 +39,6 @@ const saveDocument = (document) => new Promise((resolve, reject) =>{
 			return reject({ status: 400, error: 'failed_to_validate', error_description: validationError.message });
 		});
 });
-
-const saveAll = (documents = []) => new Promise((resolve, reject) => async.map(documents, (document, error)=> {
-	document.validate(validationError => {
-		if (validationError){
-			error({error: 'failed_to_validate', error_description: validationError.message });
-		}
-
-		document.save((saveError, savedDocument) => {
-			if (saveError) {
-				error({ error: 'internal_error', error_description: 'save file was not possible' });
-			}
-			return savedDocument;
-		});
-	});
-}, (error, results) => {
-	if (error) reject(error);
-	else resolve(results);
-}));
 
 const friendlyId = lenght => crypto
 	.randomBytes(Math.ceil((lenght * 3) / 4))
@@ -109,7 +90,7 @@ const calculateCustomerValues = customer => {
 	items.forEach(item => {
 		total += item.price;
 
-		item.payments.forEach(payment => {
+		item.payments && item.payments.forEach(payment => {
 			paid += payment.value;
 		});
 
@@ -155,7 +136,6 @@ const calculateProductValues = product => {
 
 module.exports = {
 	saveDocument,
-	saveAll,
 	friendlyId,
 	calculateValues, 
 	calculateCustomerValues,

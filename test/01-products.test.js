@@ -46,6 +46,37 @@ describe('/api/v1/product', function() {
 		assert.equal(res.body.basePrice, '80',  'Expect pprice to be 80');
 		assert.equal(res.body.provider, 'PROVIDER',  'Expect provider to be PROVIDER');
 	});
+
+	it('should post another product', async function () {
+		const res = await request(app)
+			.post('/api/v1/product')
+			.set('Content-Type', 'application/json')
+			.send({
+				title: 'PRODUTO B',
+				description: 'UM PRODUTO B',
+				code: '9999',
+				group: '99',
+				subgroup: '99',
+				variation: '98',
+				unity: 'UN',
+				provider: 'PROVIDER',
+				price: '99',
+				basePrice: '80'
+			});
+
+		assert.equal(res.statusCode, 201, 'Expect request to be created (201)');
+		assert.equal(res.body.title, 'PRODUTO B',  'Expect title to be PRODUTO B');
+		assert.equal(res.body.description, 'UM PRODUTO B',  'Expect description to be UM PRODUTO B');
+		assert.equal(res.body.ref, '999998',  'Expect ref to be 0000');
+		assert.equal(res.body.code, '9999',  'Expect code to be 9999');
+		assert.equal(res.body.group, '99',  'Expect group 99');
+		assert.equal(res.body.subgroup, '99',  'Expect subgroup to be 99');
+		assert.equal(res.body.variation, '98',  'Expect variation to be 98');
+		assert.equal(res.body.unity, 'UN',  'Expect unity to be UN');
+		assert.equal(res.body.price, '99',  'Expect pprice to be 99');
+		assert.equal(res.body.basePrice, '80',  'Expect pprice to be 80');
+		assert.equal(res.body.provider, 'PROVIDER',  'Expect provider to be PROVIDER');
+	});
     
 	it('should alter an existing a product', async function () {
 		const res = await request(app)

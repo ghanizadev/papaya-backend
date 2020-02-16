@@ -31,7 +31,7 @@ router.post('/add', async (req, res, next) => {
 
 			const body = req.body;
 			body.quantity = stockItem.quantity + quantity;
-			
+
 			delete body.code;
 			stockItem.set(body);
 		}
@@ -69,6 +69,20 @@ router.get('/', async (req, res, next) => {
 			res.status(200).send(result);
 		})
 		.catch(next);
+});
+
+router.get('/:code', async (req, res, next) => {
+	const {code} = req.params;
+
+	const query = Stock.findOne({code});
+
+	return query.exec()
+		.then(foundItem => {
+			if(!foundItem)
+				return next({status: 404 , error: 'not_found', error_description: 'requested item wwas not found in stock' });
+
+			res.status(200).send(foundItem);
+		}).catch(next);
 });
 
 
