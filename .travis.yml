@@ -1,5 +1,9 @@
 language: node_js
 node_js: stable
+
+addons:
+  sonarcloud:
+    organization: papaya
 cache:
   directories:
   - "$HOME/.sonar/cache"
@@ -7,13 +11,8 @@ cache:
 jobs:
   include:
   - stage: Compile, test and delopy
-    script: npm ci
-    script: npm run test
-    script: npm run lint
-    addons:
-      sonarcloud:
-        organization: papaya
-    script: sonar-scanner
+    script: npm ci && npm run test && npm run lint && sonar-scanner
+
 deploy:
   provider: heroku
   api_key:
