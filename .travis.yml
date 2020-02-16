@@ -6,13 +6,10 @@ cache:
   - "$HOME/.npm"
 jobs:
   include:
-  - stage: Compile
+  - stage: Compile, test and delopy
     script: npm ci
-  - stage: Mocha/Chai Tests
     script: npm run test
-  - stage: Check Code Lint
     script: npm run lint
-  - stage: Check Quality Gate
     addons:
       sonarcloud:
         organization: papaya
