@@ -11,8 +11,6 @@ const ProductSchema = new mongoose.Schema({
 	unity: {type: String, enum:['UN', 'FD', 'KG', 'PCT', 'CX', 'LT'], default: 'UN'},
 	provider: { type: String, required: true, default: 'LA SOLANA' },
 	price: {type: Number, required: true},
-	provider: { type: String, required: true },
-	price: {type: Number, required: true},
 	basePrice: {type: Number, required: true},
 }, { collection: 'products', timestamps: true });
 
