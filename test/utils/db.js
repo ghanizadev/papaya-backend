@@ -3,9 +3,13 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const bcrypt = require('bcrypt');
 
-const server = new MongoMemoryServer();
+const server = new MongoMemoryServer({
+	instance: {
+		port: 27018,
+	}
+});
 
-const populateDatabase = async () => {	
+const populateDatabase = async () => {
 	await server.getConnectionString()
 		.then(async url => {
 			await mongoose.connect(url)
@@ -15,7 +19,7 @@ const populateDatabase = async () => {
 						email: 'admin@admin.com',
 						password: bcrypt.hashSync('123456', '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq'),
 					});
-				
+
 					const client = new Client({
 						clientId: 'lasolana',
 						clientSecret: 'minhamarguerita'
@@ -23,7 +27,9 @@ const populateDatabase = async () => {
 
 					const pizza = new Pizza({
 						code: 10,
-						title: 'PIZZA PEQUENA'
+						name: 'PIZZA PEQUENA',
+						description: 'Uma pizza pequena',
+						ref: 'small',
 					});
 
 					const flavor = new Flavor(  {
@@ -49,12 +55,12 @@ const populateDatabase = async () => {
 					await flavor.save();
 
 					await pizza.save();
-				
+
 					await client.save();
 
 					await user.save();
 
-	
+
 					server.getDbName()
 						.then(name => db.connection.useDb(name));
 				})

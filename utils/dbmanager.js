@@ -27,7 +27,7 @@ class DBManager {
 						throw new Error('Database: Failed to connect to MongoDB!');
 					});
 			}
-		
+
 
 	}
 

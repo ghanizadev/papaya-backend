@@ -154,7 +154,7 @@ app.use('/api/v1/waitinglist',  updateCallback, waitingList);
 // eslint-disable-next-line no-unused-vars
 /** Comentário aqui */
 app.use(function (err, req, res, next) {
-	console.log(err);
+	// console.log(err);
 	const response = {
 		error: err.error || 'internal_error',
 		error_description: err.error_description || 'something went bad',

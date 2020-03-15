@@ -1,5 +1,5 @@
 module.exports = async () => {
-	const {populateDatabase} = require('./index');
+	const {populateDatabase} = require('./db');
 
 	await populateDatabase();
 };

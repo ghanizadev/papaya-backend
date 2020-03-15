@@ -11,7 +11,7 @@ router.post('/token', async (req, res, next) => {
 	const  { body } = req;
 
 	if (!req.is('application/x-www-form-urlencoded')) {
-		
+
 		return next({
 			status: 400,
 			error: 'invalid_content_type',
@@ -20,7 +20,7 @@ router.post('/token', async (req, res, next) => {
 	}
 
 	if (!req.headers.authorization || req.headers.authorization === '') {
-		
+
 
 		return next({
 			status: 400,
@@ -30,7 +30,7 @@ router.post('/token', async (req, res, next) => {
 	}
 
 	if (!body.grant_type || body.grant_type === '') {
-		
+
 
 		return next({
 			status: 400,
@@ -40,7 +40,7 @@ router.post('/token', async (req, res, next) => {
 	}
 
 	if (!body.username || body.username === '' ) {
-	
+
 		return next({
 			status: 400,
 			error: 'invalid_credentials',
@@ -49,7 +49,7 @@ router.post('/token', async (req, res, next) => {
 	}
 
 	if (!body.password || body.password === '') {
-	
+
 		return next({
 			status: 400,
 			error: 'invalid_credentials',
@@ -80,7 +80,7 @@ router.post('/token', async (req, res, next) => {
 		.catch(next);
 });
 
-router.post('/client', (req,res, next) => {
+router.post('/client', async (req, res, next) => {
 	const {clientId, clientSecret} = req.body;
 
 	const client = new Client({clientId, clientSecret});

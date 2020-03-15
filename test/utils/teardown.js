@@ -1,5 +1,5 @@
 module.exports = async () => {
-	const {close} = require('./index');
+	const {close} = require('./db');
 
 	await close();
 };

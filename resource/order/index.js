@@ -226,6 +226,7 @@ const formatProducts = (products = []) => new Promise((resolve, reject) => {
 								}
 							});
 
+							const ownerArray = Array.isArray(owner) ? owner.map(o => o.toUpperCase()) : [owner.toUpperCase()];
 
 							result.push({
 								quantity,
@@ -233,7 +234,7 @@ const formatProducts = (products = []) => new Promise((resolve, reject) => {
 								ref: code,
 								title: `${pizza} - PIZZA ${foundPizza.name}`,
 								description,
-								owner: owner || ['GERAL'],
+								owner: ownerArray || ['GERAL'],
 								price,
 								subtotal: quantity * price,
 								payments: []
@@ -360,15 +361,13 @@ router.get('/:orderId/members', (req, res, next) => {
 	const query = Order.findOne({orderId});
 	query.exec()
 		.then(foundOrder => {
-			const members = [];
+			let members = [];
 
 			foundOrder.items.forEach(item => {
-				item.owner.forEach(owner => {
-					if (!members.find(member => member.toUpperCase() === owner.toUpperCase()))
-						members.push(owner.toUpperCase());
-				});
+				members = members.concat(item.owner);
 			});
 
+			members = [... new Set(members)];
 			members.sort();
 
 			res.status(200).send(members);
