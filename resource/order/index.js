@@ -13,7 +13,7 @@ router.all('*', (req, res, next) => {
 	next();
 });
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
 	const query = Order.find(req.query);
 
 	return query.exec().then(foundOrders => {
@@ -33,9 +33,9 @@ router.post('/', async (req, res, next) => {
 
 	if(!req.body.tableNumber || req.body.tableNumber === '')
 		return next({status: 400, error: 'invalid_table', error_description: 'send a valid table in "tableNumber" property'});
-	
+
 	const query = Table.find({number: body.tableNumber});
-	
+
 	return query.exec().then(foundTable => {
 
 		if(foundTable.length === 0){
@@ -55,7 +55,7 @@ router.post('/', async (req, res, next) => {
 
 			saveDocument(order)
 				.then(orderResult => {
-						
+
 					newTable.set({order: orderResult, orderId});
 
 					saveDocument(newTable)
@@ -77,9 +77,9 @@ router.post('/delivery', async (req, res, next) => {
 	const id = friendlyId(5);
 
 	if(!body.customer || body.customer === '') next({status: 400, error: 'customer_not_found', error_description: 'a customer must be set for deliveries'});
-	
+
 	if(!body.address || !body.address.street || !body.address.district || !body.address.number) next({status: 400, error: 'invalid_address', error_description: 'every delivery needs an address, dur'});
-	
+
 	const deliveryBody = {};
 
 	deliveryBody.paymentMethod = body.paymentMethod;
@@ -96,9 +96,9 @@ router.post('/delivery', async (req, res, next) => {
 			order.orderId = id;
 			order.user = `${user.code} - ${user.name}`;
 			order.toDeliver = true;
-		
-			return formatPizza(body.products)
-				.then(result => {
+
+			return formatProducts(body.products)
+				.then(async result => {
 					order.items = result;
 
 					const saveOrder = new Order(order);
@@ -107,7 +107,7 @@ router.post('/delivery', async (req, res, next) => {
 						.then(orderResult => {
 
 							const {street, district, number} = delivery.address;
-							
+
 							delivery.set({order: orderResult});
 
 							const access_token ='hXlnoY101I1bbcY78guRDvNT4T6IfEQxgpm-pqNIQN0';
@@ -124,7 +124,7 @@ router.post('/delivery', async (req, res, next) => {
 												saveDocument(delivery)
 													.then(result => {
 														res.status(201).send(result);
-														
+
 													});
 											});
 									}
@@ -133,12 +133,10 @@ router.post('/delivery', async (req, res, next) => {
 				})
 				.catch(next);
 		})
-		.catch(error => next({status: 400, error: 'failed_to_validate', error_description: 'failed to validate your request body'}));
-
-	
+		.catch((e) => next({status: 400, error: 'failed_to_validate', error_description: 'failed to validate your request body (' + e.message + ')'}));
 });
 
-const formatPizza = (products = []) => new Promise((resolve, reject) => {
+const formatProducts = (products = []) => new Promise((resolve, reject) => {
 	let result = [];
 
 	async.map(products, (product, callback) => {
@@ -147,95 +145,103 @@ const formatPizza = (products = []) => new Promise((resolve, reject) => {
 
 		if(!product || !product.code || !product.quantity)
 			return reject({
-				code: 400,
-				message: {
-					error: 'invalid_data',
-					error_description: 'your request data is null or invalid, please, check if quantity and code are both okay'
-				}
+				status: 400,
+				error: 'invalid_data',
+				error_description: 'your request data is null or invalid, please, check if quantity and code are both okay'
 			});
 
 		let value = code.toString();
-		const pizza = value.substring(0,2);
-		const rest = value.substring(3);
 
-		const codeResult = rest.match(/.{1,4}/g);
+		if (code){
 
-		const queryA = Flavor.find({code: {$in: codeResult }});
-			
-		queryA.exec()
-			.then(foundFlavors => {
-				if (foundFlavors.length !== codeResult.length){
-					const notFound = codeResult.filter(code => !foundFlavors.find(flavor => flavor.code === code));
-					return reject({code: 400, message: {error: 'file_not_found', error_description: `one of requested flavors(${notFound}) does not exists or it is deleted`}});
-				}
+			console.log(product);
 
-				const queryB = Pizza.findOne({code: pizza});
-					
-				queryB.exec()
-					.then(foundPizza => {
+			const pizza = value.substring(0,2);
+			const rest = value.substring(3);
 
-						const description = codeResult.map((flavor) => {
-							let string = `${flavor} - ${foundFlavors.find(item => item.code === flavor).name}`;
+			const codeResult = rest.match(/.{1,4}/g);
 
-							if(additionals && Array.isArray(additionals) && additionals.length > 0){
+			const queryA = Flavor.find({code: {$in: codeResult }});
 
-								additionals.forEach(additional => {
-									let result = '';
+			queryA.exec()
+				.then(foundFlavors => {
+					if (foundFlavors.length !== codeResult.length){
+						const notFound = codeResult.filter(code => !foundFlavors.find(flavor => flavor.code === code));
+						return reject({status: 400, error: 'file_not_found', error_description: `one of requested flavors(${notFound}) does not exists or it is deleted`});
+					}
 
-									const arr = additional.split(':');
+					const queryB = Pizza.findOne({code: pizza});
 
-									if(arr[0] == flavor){
-										result += '(';
+					queryB.exec()
+						.then(foundPizza => {
 
-										arr[1].split(';').forEach(add => {
-											result += `${add}, `;
-										});
+							console.log(foundPizza);
+							console.log({code: pizza});
 
-										result = result.substring(0, result.length - 2) + ')';
-										string = string + ' ' + result;
-									}
-								});
+							const description = codeResult.map((flavor) => {
+								let string = `${flavor} - ${foundFlavors.find(item => item.code === flavor).name}`;
 
+								if(additionals && Array.isArray(additionals) && additionals.length > 0){
+
+									additionals.forEach(additional => {
+										let result = '';
+
+										const arr = additional.split(':');
+
+										if(arr[0] == flavor){
+											result += '(';
+
+											arr[1].split(';').forEach(add => {
+												result += `${add}, `;
+											});
+
+											result = result.substring(0, result.length - 2) + ')';
+											string = string + ' ' + result;
+										}
+									});
+
+								}
+								return string;
 							}
-							return string;
-						}
-						);
+							);
 
 
-						let price = 0;
+							let price = 0;
 
-						foundFlavors.forEach(flavor => {
-							switch(foundPizza.code){
-							case '10':
-								price += flavor.toObject().small / foundFlavors.length;
-								break;
-							case '11':
-								price += flavor.toObject().medium / foundFlavors.length;
-								break;
-							case '12':
-								price += flavor.toObject().large / foundFlavors.length;
-								break;
-							default:
-								price += flavor.toObject().large / foundFlavors.length;
-								break;
-							}
+							foundFlavors.forEach(flavor => {
+								switch(foundPizza.code){
+								case '10':
+									price += flavor.toObject().small / foundFlavors.length;
+									break;
+								case '11':
+									price += flavor.toObject().medium / foundFlavors.length;
+									break;
+								case '12':
+									price += flavor.toObject().large / foundFlavors.length;
+									break;
+								default:
+									price += flavor.toObject().large / foundFlavors.length;
+									break;
+								}
+							});
+
+							const ownerArray = Array.isArray(owner) ? owner.map(o => o.toUpperCase()) : [owner.toUpperCase()];
+
+							result.push({
+								quantity,
+								code: friendlyId(12),
+								ref: code,
+								title: `${pizza} - PIZZA ${foundPizza.name}`,
+								description,
+								owner: ownerArray || ['GERAL'],
+								price,
+								subtotal: quantity * price,
+								payments: []
+							});
+							callback(null, result);
 						});
-
-
-						result.push({
-							quantity,
-							code: friendlyId(12),
-							ref: code,
-							title: `${pizza} - PIZZA ${foundPizza.name}`,
-							description,
-							owner: owner || ['GERAL'],
-							price,
-							subtotal: quantity * price,
-							payments: []
-						});
-						callback(null, result);
-					});
-			});
+				});
+		}
 	}, () => resolve(result));
 });
 
@@ -277,18 +283,18 @@ router.put('/:orderId/:code/remove', async (req, res, next) => {
 
 				Order.findByIdAndUpdate(foundOrder.id, {$push: {items: product}}, {new: true}, (pushError, pushedDocument) => {
 					if(pushError) {
-						
+
 						return res.status(400).send({error: 'error_at_push', error_description: 'update file failed'});
 					}
 
 					const document = calculateValues(pushedDocument);
-					
-					
+
+
 					return res.status(200).send(document);
 				});
 
 			}else {
-				
+
 				return res.status(400).send({error: 'invalid_params', error_description: 'code and id were expected as url queries'});
 			}
 		}).catch(next);
@@ -315,15 +321,13 @@ router.put('/:orderId/add', async (req, res, next) => {
 				else
 					products.push(item);
 			});
-			const results = await formatPizza(pizzas);
-			
 			if(products.length > 0){
 				const codes = products.map(product => product.code);
 				const stock = await Stock.find({code: {$in: codes}}).exec();
-				
+
 				if(products.length !== stock.length)
 					return next({status: 404, error: 'not_found', error_description: 'one or more products ar out of stock'});
-				
+
 				stock.forEach(stockItem => {
 					const currentProduct = products.find(p => p.code === stockItem.code);
 
@@ -334,7 +338,13 @@ router.put('/:orderId/add', async (req, res, next) => {
 					saveDocument(stockItem).catch(next);
 				});
 			}
-			
+
+			let results;
+			await formatProducts(pizzas)
+				.then(docs => {
+					results = docs;
+				})
+				.catch(next);
 
 			let items = [];
 
@@ -345,27 +355,25 @@ router.put('/:orderId/add', async (req, res, next) => {
 			items = items.concat(results, products);
 
 			foundDocument.set({items});
-			foundDocument.save()
+			saveDocument(foundDocument)
 				.then(savedFile => {
-					const result = calculateValues(savedFile);
+					const result = calculateValues(savedFile.toObject());
 
 					const queryB = foundDocument.toDeliver ? Delivery.findOne({ orderId }) : Table.findOne({ orderId });
-						
+
 					queryB.exec()
 						.then(foundItem => {
 							foundItem.set({
 								order: result
 							});
-
 							saveDocument(foundItem)
 								.then(resultItem => {
 									res.status(201).send(resultItem);
-										
+
 								})
 								.catch(next);
 						});
 				});
-
 		});
 	} catch(e){
 		next(e);
@@ -389,16 +397,14 @@ router.get('/:orderId/members', async (req, res, next) => {
 
 	const query = Order.findOne({orderId});
 	return query.exec()
-		.then(foundOrder => {		
-			const members = [];
+		.then(foundOrder => {
+			let members = [];
 
 			foundOrder.items.forEach(item => {
-				item.owner.forEach(owner => {
-					if (!members.find(member => member.toUpperCase() === owner.toUpperCase()))
-						members.push(owner.toUpperCase());
-				});
+				members = members.concat(item.owner);
 			});
 
+			members = [... new Set(members)];
 			members.sort();
 
 			res.status(200).send(members);
@@ -412,12 +418,12 @@ router.get('/:orderId/:member', async (req,res,next) => {
 
 	return queryA.exec()
 		.then(foundOrder => {
-			if(!foundOrder)	
+			if(!foundOrder)
 				return next({status: 404, error: 'order_not_found', error_description: 'requested order was not found'});
-	
+
 			const items = foundOrder.toObject().items.filter(item => item.owner.includes(member));
 
-			let customer = {}; 
+			let customer = {};
 			if(items.length > 0){
 				customer = {
 					name: member,
@@ -444,7 +450,7 @@ router.post('/:orderId/:code/pay', async (req, res, next) => {
 	const timestamp = new Date().getTime();
 
 	const query = Order.findOne({orderId});
-	
+
 	return query.exec()
 		.then(foundOrder => {
 
@@ -484,7 +490,7 @@ router.post('/:orderId/:code/pay', async (req, res, next) => {
 						.then(newOrder => {
 							const result = calculateValues(newOrder);
 							res.status(201).send(result);
-							
+
 
 						})
 						.catch(next);
@@ -495,21 +501,21 @@ router.post('/:orderId/:code/pay', async (req, res, next) => {
 
 
 });
-	
+
 router.post('/:orderId/:member/:code/pay', (req, res, next) => {
 	const {member, code, orderId} = req.params;
 	const {user} = req;
 
 	Order.findOne({orderId}, (findError, foundOrder)=> {
 		if(findError || !foundOrder){
-			
+
 			next({status: 500, error: 'not_found', error_description: 'requested order was not found or deleted'});
 		}
 
 		const item = foundOrder.items.filter(value => (value.code === code && value.owner.includes(member)))[0];
 
 		if(item.paid === item.subtotal){
-			
+
 			next({status: 400, error: 'already_paid', error_description: 'requested item was already paid'});
 		}
 
@@ -519,14 +525,14 @@ router.post('/:orderId/:member/:code/pay', (req, res, next) => {
 		const authorizationId = bcrypt.hash(foundOrder.user + authorizationDate + foundOrder.orderId, '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq');
 		const payment = new Payment({...req.body, authorizationDate, authorizationId, operator: issuer});
 
-			
+
 		saveDocument(payment).then(result => {
-			
+
 			res.status(201).send(result);
-			
+
 		})
 			.catch(error => {
-				
+
 				next(error);
 			});
 
@@ -546,7 +552,7 @@ router.post('/:orderId/:member/pay', (req, res, next) => {
 
 	Order.findOne({orderId}, (findError, foundOrder) => {
 		if(findError || foundOrder == null || foundOrder.closed){
-			
+
 			return res.status(400).send({error: 'file_not_found', error_description: 'requested order does not exists or it is deleted/closed'});
 		}
 
@@ -569,12 +575,12 @@ router.post('/:orderId/:member/pay', (req, res, next) => {
 		const final = value - paidValue;
 
 		if(final <= 0){
-			
+
 			return res.status(400).send({error: 'bill_already_paid', error_description: 'requested order was already paid'});
 		}
 
 		if(final < payment.value && payment.method !== 'DINHEIRO'){
-			
+
 			return res.status(400).send({error: 'invalid_payment', error_description: 'changes are not allowed for payments different than cash'});
 		}
 
@@ -596,19 +602,19 @@ router.post('/:orderId/:member/pay', (req, res, next) => {
 					},
 					(pushError, newDocument) => {
 						if (pushError){
-							
+
 							return res.status(400).send({error: 'failed_to_push', error_description: 'couldnt query the database'});
 						}
 
-						
+
 						const result = calculateValues(newDocument);
-						
+
 						return res.status(200).send(result);
 
 					});
 			})
 			.catch(error => {
-				
+
 				res.status(400).send({error: 'failed_to_validate', error_description: `invalid payment format: ${error.message}`});
 			});
 
@@ -621,31 +627,31 @@ router.post('/:orderId/checkout', (req, res, next) => {
 
 	Order.findOne({orderId}, (findError, foundOrder) => {
 		if (findError){
-			
+
 			return res.status(500).send({error: 'internal_error', error_description: 'something went happened'});
 		}
 
 		if (foundOrder == null){
-			
+
 			return res.status(400).send({error: 'not_found', error_description: 'requested order was not found'});
 		}else{
 			if(foundOrder.closed == 'false') {
 				let result = calculateValues(foundOrder);
 
 				if(result.remaining > 0){
-					
+
 					return res.status(400).send({error: 'bill_still_open', error_description: 'the order needs to be paid before closing'});
 				}
 
 				result.closed = true;
 				//@TODO: Socket.io callback
 
-				
+
 				res.status(201).send(result);
-				
+
 
 			}else {
-				
+
 				return res.status(400).send({error: 'not_found', error_description: 'requested order was not found'});
 			}}
 

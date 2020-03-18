@@ -116,7 +116,7 @@ const auth = (req, res, next) => {
 
 					if (req.authorities && !arrayEquals(result.authorities, req.authorities))
 						return res.status(403).send({error: 'forbidden', error_description: 'you are not authorized to check this content'});
-					
+
 					req.user = result;
 					next();
 				})
