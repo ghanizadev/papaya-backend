@@ -11,11 +11,7 @@ const PASSWORD = '123456';
 describe('/oauth/token', function() {
 
 	before(async function() {
-<<<<<<< HEAD:test/authentication.test.js
 		await setup();
-=======
-		return setup();
->>>>>>> master:test/00-authentication.test.js
 	});
 
 	it('should deny content-type', async function () {
@@ -56,24 +52,7 @@ describe('/oauth/token', function() {
 
 		assert.equal(res.statusCode, 400, 'Expect status code to be 400');
 		assert.equal(res.body.error, 'invalid_credentials', 'Expect \'invalid_credentials\' error type');
-		
-	});
 
-<<<<<<< HEAD:test/authentication.test.js
-
-=======
-	it('should deny invalid basic auth header', async function () {
-		const res = await request(app)
-			.post('/oauth/token')
-			.set('Content-Type', 'application/x-www-form-urlencoded')
-			.send(encodeURI(`username=${EMAIL}&password=${PASSWORD}&grant_type=password`))
-			.auth('abcdef', 'ghijk', { type: 'bearer' });
-
-
-		assert.equal(res.statusCode, 400, 'Expect status code to be 400');
-		assert.equal(res.body.error, 'invalid_auth_type', 'Expect error code to be "invalid_auth_type"');
-		
->>>>>>> master:test/00-authentication.test.js
 	});
 
 	it('should deny empty basic auth', async function () {

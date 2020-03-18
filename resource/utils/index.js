@@ -3,10 +3,10 @@ const crypto = require('crypto');
 
 const checkAuthorities = (authorities = [], required = []) => {
 	let count = 0;
-  
+
 	if (required.length === 0)
 		return true;
-    
+
 	required.forEach(authority => {
 		if (authorities.includes(authority))
 			count ++;
@@ -16,7 +16,7 @@ const checkAuthorities = (authorities = [], required = []) => {
 };
 
 const saveDocument = (document) => new Promise((resolve, reject) =>{
-	
+
 	document.validate()
 		.then(() => {
 			document.save()
@@ -32,7 +32,7 @@ const saveDocument = (document) => new Promise((resolve, reject) =>{
 						return reject(response);
 					}
 					return reject({ status: 500,  error: 'internal_error', error_description: 'save file was not possible' });
-	
+
 				});
 		})
 		.catch(validationError => {
@@ -53,6 +53,8 @@ const calculateValues = (doc) => {
 	const result = doc;
 
 	let paid = 0;
+
+	console.log(result.items);
 
 	result.items.forEach(item => {
 		total += item.subtotal;
@@ -137,7 +139,7 @@ const calculateProductValues = product => {
 module.exports = {
 	saveDocument,
 	friendlyId,
-	calculateValues, 
+	calculateValues,
 	calculateCustomerValues,
 	calculateProductValues,
 	checkAuthorities
