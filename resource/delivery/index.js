@@ -7,15 +7,8 @@ const {saveDocument} = require('../utils');
 router.get('/', async (req, res, next) => {
 	const query = Delivery.find(req.query);
 		 return query.exec()
-		 .then(foundDelivery => {
-			 if(!foundDelivery)
-			 	return next({
-					status: 404,
-					error: 'delivery_not_found',
-					error_descri3ption: 'requested delivery was not found'
-			 	});
-			return res.status(200).send(foundDelivery);
-		 }).catch(next);
+		 .then(foundDelivery => res.status(200).send(foundDelivery))
+		 .catch(next);
 });
 
 router.get('/:orderId', async (req, res, next) => {
@@ -27,25 +20,13 @@ router.get('/:orderId', async (req, res, next) => {
 			if (!foundDelivery)
 				return next({
 					status: 404,
-					error: 'delivery_not_found',
+					error: 'not_found',
 					error_descri3ption: 'requested delivery was not found'
 		 });
 
 		 return res.status(200).send(foundDelivery);
 
 		}).catch(next);
-});
-
-
-
-router.post('/', async (req, res, next) => {
-	const { body } = req;
-
-	const delivery = new Delivery(body);
-
-	return saveDocument(delivery)
-		.then(savedDelivery => res.status(201).send(savedDelivery))
-		.catch(next);
 });
 
 router.put('/:orderId', async (req, res, next) => {
@@ -57,14 +38,14 @@ router.put('/:orderId', async (req, res, next) => {
 			if (!foundDelivery)
 				return next({
 					status: 404,
-					error: 'delivery_not_found',
+					error: 'not_found',
 					error_descri3ption: 'requested delivery was not found'
 		 });
 
 			foundDelivery.set(req.body);
 
 			return saveDocument(foundDelivery)
-				.then(savedDelivery => res.status(200).send(savedDelivery))
+				.then(savedDelivery => res.status(201).send(savedDelivery))
 				.catch(next);
 		}).catch(next);
 });
@@ -78,7 +59,7 @@ router.patch('/:orderId/delivered', async (req, res, next) => {
 			if (!foundDelivery)
 				return next({
 					status: 404,
-					error: 'delivery_not_found',
+					error: 'not_found',
 					error_descri3ption: 'requested delivery was not found'
 		 });
 
@@ -88,7 +69,7 @@ router.patch('/:orderId/delivered', async (req, res, next) => {
 			});
 
 			return saveDocument(foundDelivery)
-				.then(savedDelivery => res.status(200).send(savedDelivery))
+				.then(savedDelivery => res.status(201).send(savedDelivery))
 				.catch(next);
 		}).catch(next);
 });

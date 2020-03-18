@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const {User} = require('../../../../model');
-const {JWTBuilder} = require('./jwtbuilder');
 
 const stringify = (load) => load
 	.replace(/=+$/g, '')

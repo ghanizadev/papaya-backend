@@ -3,11 +3,21 @@ var async = require('async');
 var bcrypt = require('bcrypt');
 
 const router = express.Router();
-const {Order, Pizza, Flavor, Table, Payment, Delivery} = require('../../model');
-const {saveDocument, friendlyId, calculateValues, calculateCustomerValues, calculateProductValues} = require('../utils');
+const {Order, Pizza, Flavor, Table, Payment, Delivery, Stock} = require('../../model');
+const {saveDocument, friendlyId, calculateValues, calculateCustomerValues, calculateProductValues, checkAuthorities} = require('../utils');
 const fetch = require('node-fetch');
 
+<<<<<<< HEAD
 router.get('/', async (req, res, next) => {
+=======
+router.all('*', (req, res, next) => {
+	if(!checkAuthorities(req.user.authorities, ['READ', 'WRITE']))
+		return res.status(403).send({status: 403, error: 'forbidden', error_description: 'you are not permitted to check this content'});
+	next();
+});
+
+router.get('/', (req, res, next) => {
+>>>>>>> master
 	const query = Order.find(req.query);
 
 	return query.exec().then(foundOrders => {
@@ -90,14 +100,20 @@ router.post('/delivery', async (req, res, next) => {
 			order.orderId = id;
 			order.user = `${user.code} - ${user.name}`;
 			order.toDeliver = true;
+<<<<<<< HEAD
 
 			return formatProducts(body.products)
 				.then(async result => {
+=======
+		
+			return formatPizza(body.products)
+				.then(result => {
+>>>>>>> master
 					order.items = result;
 
 					const saveOrder = new Order(order);
 
-					return saveDocument(saveOrder)
+					saveDocument(saveOrder)
 						.then(orderResult => {
 
 							const {street, district, number} = delivery.address;
@@ -132,10 +148,7 @@ router.post('/delivery', async (req, res, next) => {
 
 });
 
-
-
-
-const formatProducts = (products = []) => new Promise((resolve, reject) => {
+const formatPizza = (products = []) => new Promise((resolve, reject) => {
 	let result = [];
 
 	async.map(products, (product, callback) => {
@@ -149,12 +162,11 @@ const formatProducts = (products = []) => new Promise((resolve, reject) => {
 				error_description: 'your request data is null or invalid, please, check if quantity and code are both okay'
 			});
 
-
 		let value = code.toString();
-		let pizza;
+		const pizza = value.substring(0,2);
+		const rest = value.substring(3);
 
-		const isPizza = /\*/.test(value);
-
+<<<<<<< HEAD
 		if (isPizza){
 			pizza = value.substring(0,2);
 
@@ -181,53 +193,74 @@ const formatProducts = (products = []) => new Promise((resolve, reject) => {
 
 							const description = codeResult.map((flavor) => {
 								let string = `${flavor} - ${foundFlavors.find(item => item.code === flavor).name}`;
+=======
+		const codeResult = rest.match(/.{1,4}/g);
 
-								if(additionals && Array.isArray(additionals) && additionals.length > 0){
+		const queryA = Flavor.find({code: {$in: codeResult }});
+			
+		queryA.exec()
+			.then(foundFlavors => {
+				if (foundFlavors.length !== codeResult.length){
+					const notFound = codeResult.filter(code => !foundFlavors.find(flavor => flavor.code === code));
+					return reject({code: 400, message: {error: 'file_not_found', error_description: `one of requested flavors(${notFound}) does not exists or it is deleted`}});
+				}
 
-									additionals.forEach(additional => {
-										let result = '';
+				const queryB = Pizza.findOne({code: pizza});
+					
+				queryB.exec()
+					.then(foundPizza => {
 
-										const arr = additional.split(':');
+						const description = codeResult.map((flavor) => {
+							let string = `${flavor} - ${foundFlavors.find(item => item.code === flavor).name}`;
+>>>>>>> master
 
-										if(arr[0] == flavor){
-											result += '(';
+							if(additionals && Array.isArray(additionals) && additionals.length > 0){
 
-											arr[1].split(';').forEach(add => {
-												result += `${add}, `;
-											});
+								additionals.forEach(additional => {
+									let result = '';
 
-											result = result.substring(0, result.length - 2) + ')';
-											string = string + ' ' + result;
-										}
-									});
+									const arr = additional.split(':');
 
-								}
-								return string;
+									if(arr[0] == flavor){
+										result += '(';
+
+										arr[1].split(';').forEach(add => {
+											result += `${add}, `;
+										});
+
+										result = result.substring(0, result.length - 2) + ')';
+										string = string + ' ' + result;
+									}
+								});
+
 							}
-							);
+							return string;
+						}
+						);
 
 
-							let price = 0;
+						let price = 0;
 
-							foundFlavors.forEach(flavor => {
-								switch(foundPizza.code){
-								case '10':
-									price += flavor.toObject().small / foundFlavors.length;
-									break;
-								case '11':
-									price += flavor.toObject().medium / foundFlavors.length;
-									break;
-								case '12':
-									price += flavor.toObject().large / foundFlavors.length;
-									break;
-								default:
-									price += flavor.toObject().large / foundFlavors.length;
-									break;
-								}
-							});
+						foundFlavors.forEach(flavor => {
+							switch(foundPizza.code){
+							case '10':
+								price += flavor.toObject().small / foundFlavors.length;
+								break;
+							case '11':
+								price += flavor.toObject().medium / foundFlavors.length;
+								break;
+							case '12':
+								price += flavor.toObject().large / foundFlavors.length;
+								break;
+							default:
+								price += flavor.toObject().large / foundFlavors.length;
+								break;
+							}
+						});
 
 							const ownerArray = Array.isArray(owner) ? owner.map(o => o.toUpperCase()) : [owner.toUpperCase()];
 
+<<<<<<< HEAD
 							result.push({
 								quantity,
 								code: friendlyId(12),
@@ -240,13 +273,26 @@ const formatProducts = (products = []) => new Promise((resolve, reject) => {
 								payments: []
 							});
 							callback(null, result);
+=======
+						result.push({
+							quantity,
+							code: friendlyId(12),
+							ref: code,
+							title: `${pizza} - PIZZA ${foundPizza.name}`,
+							description,
+							owner: owner || ['GERAL'],
+							price,
+							subtotal: quantity * price,
+							payments: []
+>>>>>>> master
 						});
-				});
-		}
+						callback(null, result);
+					});
+			});
 	}, () => resolve(result));
 });
 
-router.put('/:orderId/:code/remove', (req, res, next) => {
+router.put('/:orderId/:code/remove', async (req, res, next) => {
 	const {orderId, code} = req.params;
 
 	const query = Order.findOne({orderId});
@@ -277,6 +323,11 @@ router.put('/:orderId/:code/remove', (req, res, next) => {
 				product.subtotal *= -1;
 				product.title = `${product.title} (REMOVIDO)`;
 
+				Stock.findOne({code}).exec()
+					.then(item => {
+						item.set({quantity: item.quantity + 1});
+					});
+
 				Order.findByIdAndUpdate(foundOrder.id, {$push: {items: product}}, {new: true}, (pushError, pushedDocument) => {
 					if(pushError) {
 
@@ -297,30 +348,50 @@ router.put('/:orderId/:code/remove', (req, res, next) => {
 });
 
 
-router.put('/:orderId/add', (req, res, next) => {
-	const {orderId} = req.params;
+router.put('/:orderId/add', async (req, res, next) => {
+	try{
+		const {orderId} = req.params;
 
-	const queryA = Order.findOne({orderId});
+		const queryA = Order.findOne({orderId});
 
-	queryA.exec().then(foundDocument => {
-		if (foundDocument.closed) {
-			return next({status: 500, error: 'file_not_found', error_description: 'requested order does not exists or it is deleted/closed'});
-		}
+		return queryA.exec().then(async foundDocument => {
+			if (!foundDocument || foundDocument.closed) {
+				return next({status: 404, error: 'not_found', error_description: 'requested order does not exists or it is deleted/closed'});
+			}
 
-		formatProducts(req.body)
-			.then(results => {
-				let items = [];
+			const products = [];
+			const pizzas = [];
 
-				foundDocument.items.forEach(item => {
-					items.push(item);
+			req.body.forEach(item => {
+				if(/\*/.test(item.code))
+					pizzas.push(item);
+				else
+					products.push(item);
+			});
+			const results = await formatPizza(pizzas);
+			
+			if(products.length > 0){
+				const codes = products.map(product => product.code);
+				const stock = await Stock.find({code: {$in: codes}}).exec();
+				
+				if(products.length !== stock.length)
+					return next({status: 404, error: 'not_found', error_description: 'one or more products ar out of stock'});
+				
+				stock.forEach(stockItem => {
+					const currentProduct = products.find(p => p.code === stockItem.code);
+
+					if(stockItem.quantity < currentProduct.quantity) return next({status: 400, error: 'not_enough_products', error_description: 'not enough products to complete this request'});
+
+					stockItem.set({quantity: stockItem.quantity - currentProduct.quantity});
+
+					saveDocument(stockItem).catch(next);
 				});
+			}
+			
 
-				items = items.concat(results);
-				foundDocument.set({items});
-				foundDocument.save()
-					.then(savedFile => {
-						const result = calculateValues(savedFile);
+			let items = [];
 
+<<<<<<< HEAD
 						const queryB = Table.findOne({ orderId });
 
 						queryB.exec()
@@ -335,12 +406,40 @@ router.put('/:orderId/add', (req, res, next) => {
 
 									})
 									.catch(next);
+=======
+			foundDocument.items.forEach(item => {
+				items.push(item);
+			});
+
+			items = items.concat(results, products);
+
+			foundDocument.set({items});
+			foundDocument.save()
+				.then(savedFile => {
+					const result = calculateValues(savedFile);
+
+					const queryB = foundDocument.toDeliver ? Delivery.findOne({ orderId }) : Table.findOne({ orderId });
+						
+					queryB.exec()
+						.then(foundItem => {
+							foundItem.set({
+								order: result
+>>>>>>> master
 							});
-					});
 
-			}).catch(next);
+							saveDocument(foundItem)
+								.then(resultItem => {
+									res.status(201).send(resultItem);
+										
+								})
+								.catch(next);
+						});
+				});
 
-	});
+		});
+	} catch(e){
+		next(e);
+	}
 });
 
 router.get('/:orderId', async (req, res, next) => {
@@ -355,13 +454,19 @@ router.get('/:orderId', async (req, res, next) => {
 	}).catch(next);
 });
 
-router.get('/:orderId/members', (req, res, next) => {
+router.get('/:orderId/members', async (req, res, next) => {
 	const {orderId} = req.params;
 
 	const query = Order.findOne({orderId});
+<<<<<<< HEAD
 	query.exec()
 		.then(foundOrder => {
 			let members = [];
+=======
+	return query.exec()
+		.then(foundOrder => {		
+			const members = [];
+>>>>>>> master
 
 			foundOrder.items.forEach(item => {
 				members = members.concat(item.owner);
@@ -394,7 +499,7 @@ router.get('/:orderId/:member', async (req,res,next) => {
 				};
 			}
 			else {
-				next({status: 404, error: 'customer_not_found', error_description: 'requested customer is not in this order'});
+				next({status: 404, error: 'not_found', error_description: 'requested customer is not in this order'});
 			}
 
 			const result = calculateCustomerValues(customer);

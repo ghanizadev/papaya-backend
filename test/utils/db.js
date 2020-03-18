@@ -18,6 +18,7 @@ const populateDatabase = async () => {
 						name: 'Administrator',
 						email: 'admin@admin.com',
 						password: bcrypt.hashSync('123456', '$2b$10$vsxz0Ld.zLy6MvmM8b4tRenrWSh.dl4xNHHeevmBI.ndpoC0hAreq'),
+						authorities: ['READ', 'WRITE', 'ALTER', 'CREATE', 'UPDATE']
 					});
 
 					const client = new Client({

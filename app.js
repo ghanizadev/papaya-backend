@@ -48,6 +48,8 @@ var item = require('./resource/item');
 var flavor = require('./resource/flavor');
 var pizza = require('./resource/pizza');
 var waitingList = require('./resource/waitinglist');
+var management = require('./resource/management');
+var stock = require('./resource/stock');
 
 let connected = [];
 
@@ -87,13 +89,13 @@ const updateCallback = (req, res, next) => {
 
 const onAuth = (req, res, next) => {
 	io.on('connection', socket => {
-		if (connected.find(s => s.id === socket.id) === undefined){
+		if (!connected.find(s => s.id === socket.id)){
 			connected.push(socket);
 			console.log(`Client connected! (${socket.id}) => ${connected.length} now connected`);
 		}
 
 		socket.on('disconnect', () => {
-			connected = connected.filter(item => item.id !== socket.id);
+			connected = connected.filter(item => item.id != socket.id);
 			console.log(`Client disconnected! (${socket.id}) => ${connected.length} now connected`);
 
 		});
@@ -111,7 +113,10 @@ const auth = (req, res, next) => {
 			jwtParser
 				.getUserData()
 				.then(result => {
-				//TODO: Validar authorities;
+
+					if (req.authorities && !arrayEquals(result.authorities, req.authorities))
+						return res.status(403).send({error: 'forbidden', error_description: 'you are not authorized to check this content'});
+					
 					req.user = result;
 					next();
 				})
@@ -136,10 +141,10 @@ app.use('*', (req, res, next) => {
 });
 
 app.get('/api/v1/user', auth, user);
-
 app.use('/api/v1/user', user);
 app.use('/oauth', onAuth, authRoutes);
 app.use('/api/v1/product', product);
+app.use('/api/v1/management', auth, management);
 app.use('/api/v1/order', auth, updateCallback, order);
 app.use('/api/v1/customer', auth, customer);
 app.use('/api/v1/provider', provider);
@@ -148,13 +153,12 @@ app.use('/api/v1/table', table);
 app.use('/api/v1/item', item);
 app.use('/api/v1/flavor', flavor);
 app.use('/api/v1/pizza', pizza);
+app.use('/api/v1/stock', stock);
 app.use('/api/v1/waitinglist',  updateCallback, waitingList);
 
-
 // eslint-disable-next-line no-unused-vars
-/** Comentário aqui */
 app.use(function (err, req, res, next) {
-	// console.log(err);
+	!err.status && console.log(err);
 	const response = {
 		error: err.error || 'internal_error',
 		error_description: err.error_description || 'something went bad',

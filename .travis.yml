@@ -1,26 +1,25 @@
 language: node_js
 node_js: stable
+
+addons:
+  sonarcloud:
+    organization: papaya
 cache:
   directories:
   - "$HOME/.sonar/cache"
   - "$HOME/.npm"
 jobs:
   include:
-  - stage: Compile
-    script: npm ci
-  - stage: Test
-    script: npm run test
-  - stage: SonarQube
-    addons:
-      sonarcloud:
-        organization: papaya
-    script: sonar-scanner
+  - stage: Compile, test and delopy
+    script: npm ci && npm run test && npm run lint && sonar-scanner
+
 deploy:
   provider: heroku
-  app: papaya-server
   api_key:
-    secure: LFc7YrkDB+Sxxk2LFJCTTIW65kRxA4K6Djcmmf+H1HKE3k8I20SHj9gdbqYb9SPbnIo9KHthWd4PttvjrcrV1p1uFhkzck6XFYxv4KRUgYuGB6ZqPFLC4ZEYPnziaoXzVnGIN0qpLzrwcmvoW5n6HY2AMiHFd3vl2JxO9OADwQbZNPJl30GokcYwSwpXOZlBFGHQX5M/5Z+wN6RKF+v4FSwgJB+82ADQHpY3C0f8url9CmoA1c5YcA71T31mZFbogwoCi6TaQ1PDkKgF0gnCqFmsLa5+JrSd9Kh51pJw+5ZgVP1A5m+JLWUsYSckGVhM1U/qe9V1gZFghUdo+MW5lyNQLmSfQ8R/uOOK6VFyzuNhwIw83Zke+AC7BH5pTjKJ9DoP+A75JtDRUmYqwj7id7lyZhfm456RBhTsJ+/v0LJ+DjitNO97vrCv7fon1Qyg+3WBPa3DS8+SDyAA2HMws4wByS9iZalsATIJlYStiubF1yTAIzCECMs30yh4BHKEXMDoBATy52lmoWNDKxQKu/ldLU5NsVDUnPVDqYTCKOPzW7fruvIEDznQbK59mG2CP75BlBfnVWskfn5eKoUQV8P0olz1qIEUTZknFEeLaeALOSvPqM0IDTjiU1eisJo+fwXYiME5bd4x/XGXT2FPs4tFL4omPjejaJr6FWw86C8=
-  on: master
+    secure: Fuxsi7ThsQxC3LedFKbDnHjBWjpuHhrBFjKTbr1GpKmReV/RRmEyq+ZEygAN58tv8EwIE7wm73S5Pqnq0bP9EZIFaHbIuEIXh2RUHlkA/jBVicH4xR7foHr278FGGOF+5ddeQRhwoMenbzjNu1iFIBMaD1mhlGJ4SYH8bJlRvU/MK8VGXhnBZ/cH+pPndqZVcMbkZHR1CsY7cx/YlWTn6HuKYy1zJcGNrdksMfMChIU0df6h+hD7fdcPoBQlQ3KPdqFfdJ4Msdp5i9DIxwZQS3rpZ2fi4m9a4HzSU9sXJp2oTNsbJs9SNQZ910sUvJoJnmLRR6wVGai0IopnTx27X05zyNe0g7uv22TrSkDDvrE4UAPaAy2GK9SutdH4v5LFOKP1S+HTD0ZkaOSeVsRI+Xn532+J4YXECaQZ+IRa1XtypU4dbK1qyO47HmYjTv00CglUPJFxpHIJPEoczMpGBSfxAwy0yJdSJzZnky+1OWJUlP5meEo+7DZMW04EaNl2UoPNyE5YN8/LyevjQWgKY3AWwCVERkxICcFWa+VIhoxnJwTuIrHR0nyDcQbNHV6jSxx98ceA5UPmW4j1Vo2ttgi7zvErb5Nd0RxY5eWzJZGltk6Trp4bO4TawdUl3HB30ltT5G+3Xlju7+87ePdtCVUgDlocjls6mfxquk4Jp5w=
+  app: papaya-server
+  on:
+    repo: ghanizadev/papaya-backend
 notifications:
   email: false
   on_success: change

@@ -3,12 +3,12 @@ const express = require('express');
 const router = express.Router();
 const utils = require('../authentication/utils');
 
-const {saveDocument} = require('../utils');
+const {saveDocument, friendlyId, checkAuthorities} = require('../utils');
 const {User} = require('../../model');
-const {friendlyId} = require('../utils');
-
 
 router.get('/', async (req, res, next) => {
+	if(!checkAuthorities(req.user.authorities, ['READ']))
+		return res.status(403).send({status: 403, error: 'forbidden', error_description: 'you are not permitted to check this content'});
 
 	const query = User.find(req.query);
 

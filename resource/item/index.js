@@ -20,7 +20,6 @@ router.post('/', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
 	const string = {name: new RegExp(req.query.name ? req.query.name : '', 'i')};
-	console.log(string);
 	const query = Item.find(string);
 	
 	return query.exec()

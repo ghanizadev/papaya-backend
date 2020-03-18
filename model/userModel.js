@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
 			message: 'invalid name'
 		},
 		trim: true,
-		lowercase: true
+		uppercase: true
 	},
 	code: { type: String, unique: true },
 	email: {
