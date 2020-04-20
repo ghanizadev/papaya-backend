@@ -3,12 +3,12 @@ const express = require('express');
 const router = express.Router();
 
 const Product = require('../../model/productModel');
-const {connect, saveDocument}  = require('../utils');
+const {saveDocument}  = require('../utils');
 
 
 router.get('/', async (req, res, next) =>{
 	const query = Product.find(req.query);
-	
+
 	return query.exec()
 		.then(foundProducts => res.status(200).send(foundProducts))
 		.catch(next);
@@ -49,7 +49,7 @@ router.put('/:code', async (req, res, next) => {
 router.delete('/:code', async (req, res, next) => {
 	const {code} = req.params;
 	const query =  Product.findOneAndDelete({code});
-	
+
 	return query.exec()
 		.then(foundProduct => {
 			if (!foundProduct) {

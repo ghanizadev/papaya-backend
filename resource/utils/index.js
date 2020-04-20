@@ -50,11 +50,9 @@ const friendlyId = lenght => crypto
 
 const calculateValues = (doc) => {
 	let total = doc.total || 0;
-	const result = doc;
+	let result = doc;
 
 	let paid = 0;
-
-	console.log(result.items);
 
 	result.items.forEach(item => {
 		total += item.subtotal;
@@ -70,12 +68,22 @@ const calculateValues = (doc) => {
 	const remaining = Math.max(0, final - paid);
 	const change = Math.max(0, paid - final);
 
-	result.change = change.toPrecision(6);
-	result.serviceTax = serviceTax.toPrecision(6);
-	result.total = total.toPrecision(6);
-	result.final = final.toPrecision(6);
-	result.paid = paid.toPrecision(6);
-	result.remaining = remaining.toPrecision(6);
+	// result.change = change.toPrecision(6);
+	// result.serviceTax = serviceTax.toPrecision(6);
+	// result.total = total.toPrecision(6);
+	// result.final = final.toPrecision(6);
+	// result.paid = paid.toPrecision(6);
+	// result.remaining = remaining.toPrecision(6);
+
+	result = {
+		...result,
+		change,
+		serviceTax,
+		total,
+		final,
+		paid,
+		remaining
+	};
 
 	return result;
 };
